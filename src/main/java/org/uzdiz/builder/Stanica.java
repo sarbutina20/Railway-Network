@@ -67,6 +67,46 @@ public class Stanica {
         return vrijemeBrziVlak;
     }
 
+    public String getStatusStanice() {
+        return statusStanice;
+    }
+
+    public boolean isPutniciUlIz() {
+        return putniciUlIz;
+    }
+
+    public boolean isRobaUtIst() {
+        return robaUtIst;
+    }
+
+    public String getKategorijaPruge() {
+        return kategorijaPruge;
+    }
+
+    public int getBrojPerona() {
+        return brojPerona;
+    }
+
+    public String getVrstaPruge() {
+        return vrstaPruge;
+    }
+
+    public int getBrojKolosjeka() {
+        return brojKolosjeka;
+    }
+
+    public double getDoPoOsovini() {
+        return doPoOsovini;
+    }
+
+    public double getDoPoDuznomM() {
+        return doPoDuznomM;
+    }
+
+    public String getStatusPruge() {
+        return statusPruge;
+    }
+
     public static class Builder {
         private String naziv;
         private String oznakaPruge;

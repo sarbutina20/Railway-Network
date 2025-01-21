@@ -29,6 +29,8 @@ public class ChainCreator {
         CommandHandler kkpv2sHandler = new KKPV2SHandler(hrvatskeZeljeznice);
         CommandHandler ikkpvHandler = new IKKPVHandler(hrvatskeZeljeznice);
         CommandHandler ukp2sHandler = new UKP2SHandler(hrvatskeZeljeznice);
+        CommandHandler psp2sHandler = new PSP2SHandler(hrvatskeZeljeznice);
+        CommandHandler irpsHandler = new IRPSHandler(hrvatskeZeljeznice);
 
         ipHandler.setNextHandler(ispHandler);
         ispHandler.setNextHandler(isi2sHandler);
@@ -47,6 +49,8 @@ public class ChainCreator {
         cvpHandler.setNextHandler(kkpv2sHandler);
         kkpv2sHandler.setNextHandler(ikkpvHandler);
         ikkpvHandler.setNextHandler(ukp2sHandler);
+        ukp2sHandler.setNextHandler(psp2sHandler);
+        psp2sHandler.setNextHandler(irpsHandler);
 
         return ipHandler;
     }

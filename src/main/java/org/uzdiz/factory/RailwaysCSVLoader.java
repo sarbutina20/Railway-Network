@@ -94,6 +94,8 @@ public class RailwaysCSVLoader extends CSVLoader<ZeljeznickaPruga> {
                 pruge.remove(pruga);
                 logError(0, "Pruga " + pruga.getOznakaPruge() + " ima istu početnu i završnu stanicu", "");
             }
+
+            pruga.kreirajRelacije();
         }
     }
 
@@ -132,7 +134,9 @@ public class RailwaysCSVLoader extends CSVLoader<ZeljeznickaPruga> {
             ZeljeznickaPruga newRailway = new ZeljeznickaPruga.Builder(oznakaPruge)
                     .addStation(stanica)
                     .addDistance(duzina)
+                    .setBrojKolosjeka(stanica.getBrojKolosjeka())
                     .build();
+
 
 
             if (stanica.getVrijemeUbrzaniVlak() != null) {
@@ -163,7 +167,7 @@ public class RailwaysCSVLoader extends CSVLoader<ZeljeznickaPruga> {
                 new Validator(9, "\\d+", "Broj kolosjeka"),
                 new Validator(10, "\\d{1,2}(,\\d{1,2})?", "DO po osovini"),
                 new Validator(11, "\\d{1,2}(,\\d{1,2})?", "DO po dužnom m"),
-                new Validator(12, "[I|II|III]", "Status pruge"),
+                new Validator(12, "^[ITZK]$", "Status pruge"),
                 new Validator(13, "\\d+", "Dužina")
         );
 

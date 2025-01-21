@@ -6,6 +6,8 @@ import org.uzdiz.memento.PovijestKarata;
 import org.uzdiz.observer.Korisnik;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 
+import java.util.List;
+
 public class IKKPVHandler extends CommandHandler {
 
     private final HrvatskeZeljeznice hrvatskeZeljeznice;
@@ -17,24 +19,41 @@ public class IKKPVHandler extends CommandHandler {
     @Override
     public void handle(String command, String[] commandParts) {
         if (command.equalsIgnoreCase("IKKPV")) {
-            if (commandParts.length != 2) {
-                System.out.println("Upotreba: IKKPV <broj karte>");
+            if (commandParts.length > 2) {
+                System.out.println("Upotreba: IKKPV [broj karte]");
                 return;
             }
-            Integer brojKarte = Integer.parseInt(commandParts[1]);
 
             PovijestKarata povijestKarata = hrvatskeZeljeznice.getPovijestKarata();
-
-            if(brojKarte < 1 || brojKarte > povijestKarata.dohvatiSveKarte().size()) {
-                System.out.println("Ne postoji karta s tim brojem");
-                return;
-            }
-
-            KartaMemento karta = povijestKarata.dohvatiKartu(brojKarte-1);
             IspisKarti ispisKarti = new IspisKarti();
 
-            System.out.println(ispisKarti.formatirajPodatkeOKarti(karta));
+            if (commandParts.length == 1) {
+                List<KartaMemento> sveKarte = povijestKarata.dohvatiSveKarte();
+                if (sveKarte.isEmpty()) {
+                    System.out.println("Nema spremljenih karata.");
+                } else {
+                    for (int i = 0; i < sveKarte.size(); i++) {
+                        KartaMemento karta = sveKarte.get(i);
+                        System.out.println((i + 1) + ". " + ispisKarti.formatirajPodatkeOKarti(karta));
+                    }
+                }
+            } else {
+                Integer brojKarte;
+                try {
+                    brojKarte = Integer.parseInt(commandParts[1]);
+                } catch (NumberFormatException e) {
+                    System.out.println("Broj karte mora biti cijeli broj!");
+                    return;
+                }
 
+                if (brojKarte < 1 || brojKarte > povijestKarata.dohvatiSveKarte().size()) {
+                    System.out.println("Ne postoji karta s tim brojem");
+                    return;
+                }
+
+                KartaMemento karta = povijestKarata.dohvatiKartu(brojKarte - 1);
+                System.out.println(ispisKarti.formatirajPodatkeOKarti(karta));
+            }
         } else {
             super.handle(command, commandParts);
         }
