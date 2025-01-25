@@ -2,6 +2,9 @@ package org.uzdiz.singleton;
 
 import org.uzdiz.composite.VrstaVlaka;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PostavkeCijena {
     private static PostavkeCijena instance;
 
@@ -11,6 +14,8 @@ public class PostavkeCijena {
     private double popustSuN;
     private double popustWebMob;
     private double uvecanjeVlak;
+
+    private Map<String, Double> privremeniPopusti = new HashMap<>();
 
     private PostavkeCijena() {
     }
@@ -55,5 +60,20 @@ public class PostavkeCijena {
 
     public double dohvatiUvecanjeVlak() {
         return uvecanjeVlak;
+    }
+
+    public void postaviPrivremeniPopust(String polazna, String odredisna, double popust) {
+        String kljuc = polazna + "-" + odredisna;
+        privremeniPopusti.put(kljuc, popust);
+    }
+
+    public double dohvatiPrivremeniPopust(String polazna, String odredisna) {
+        String kljuc = polazna + "-" + odredisna;
+        return privremeniPopusti.getOrDefault(kljuc, 0.0);
+    }
+
+    public void ukloniPrivremeniPopust(String polazna, String odredisna) {
+        String kljuc = polazna + "-" + odredisna;
+        privremeniPopusti.remove(kljuc);
     }
 }

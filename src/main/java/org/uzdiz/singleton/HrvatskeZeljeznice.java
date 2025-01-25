@@ -4,6 +4,7 @@ import org.uzdiz.builder.Kompozicija;
 import org.uzdiz.builder.Stanica;
 import org.uzdiz.builder.Vozilo;
 import org.uzdiz.builder.ZeljeznickaPruga;
+import org.uzdiz.command.DiscountInvoker;
 import org.uzdiz.composite.OznakeDana;
 import org.uzdiz.composite.KomponentaVoznogReda;
 import org.uzdiz.factory.*;
@@ -35,6 +36,8 @@ public class HrvatskeZeljeznice {
     private final UpraviteljStanicama upraviteljStanicama;
     private final PovijestKarata povijestKarata;
 
+    private final DiscountInvoker discountInvoker;
+
 
     private HrvatskeZeljeznice() {
         this.pruge = new ArrayList<>();
@@ -46,6 +49,11 @@ public class HrvatskeZeljeznice {
         this.trafficControl = new KontrolaPrometa(this);
         this.upraviteljStanicama = new UpraviteljStanicama(this);
         this.povijestKarata = new PovijestKarata();
+        this.discountInvoker = new DiscountInvoker();
+    }
+
+    public DiscountInvoker getDiscountInvoker() {
+        return discountInvoker;
     }
 
     public PovijestKarata getPovijestKarata() {

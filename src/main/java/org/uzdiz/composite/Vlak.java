@@ -211,12 +211,12 @@ public class Vlak implements KomponentaVoznogReda {
             String lastPrintedStation = null;
             double udaljenost = 0;
             ZeljeznickaPruga pruga = HrvatskeZeljeznice.getInstance().getRailwayByOznaka(etapa.dohvatiOznakuPruge());
-
+            boolean pocetak = false;
             List<Stanica> sveStanice = etapa.dohvatiSveStanice();
             for (int i = 0; i < sveStanice.size(); i++) {
                 Stanica currentStation = sveStanice.get(i);
 
-                if (i > 0) {
+                if (i > 0 && pocetak) {
                     if (currentStation.getNaziv().equalsIgnoreCase(lastPrintedStation) && !currentStation.getNaziv().equalsIgnoreCase(odredisna)) {
                         continue;
                     }
@@ -225,6 +225,10 @@ public class Vlak implements KomponentaVoznogReda {
                     } else {
                         udaljenost += sveStanice.get(i - 1).getDuzina();
                     }
+                }
+
+                if(currentStation.getNaziv().equalsIgnoreCase(polazna)) {
+                    pocetak = true;
                 }
 
                 if(currentStation.getNaziv().equalsIgnoreCase(odredisna)) {

@@ -82,16 +82,17 @@ public class UKP2SHandler extends CommandHandler {
 
     private void handleUKP2S(String polaznaStanica, String odredisnaStanica, LocalDate datumPutovanja, LocalTime odVrijeme, LocalTime doVrijeme, String nacinKupovine, Set<OznakeDana> dan) {
 
-        List<KomponentaVoznogReda> vlakoviPoStanicama = hrvatskeZeljeznice.getVlakovi().stream().filter(vlak -> vlak.dohvatiSveStanice().stream().anyMatch(stanica -> stanica.getNaziv().equalsIgnoreCase(polaznaStanica)) && vlak.dohvatiSveStanice().stream().anyMatch(stanica -> stanica.getNaziv().equalsIgnoreCase(odredisnaStanica))).collect(Collectors.toList());
+        if(polaznaStanica.equalsIgnoreCase(odredisnaStanica)) {
+            System.out.println("Polazna i odredišna stanica ne mogu biti iste.");
+            return;
+        }
 
-        System.out.println("Vlakovi nakon filtriranja prema stanicama:" + vlakoviPoStanicama.size());
+        List<KomponentaVoznogReda> vlakoviPoStanicama = hrvatskeZeljeznice.getVlakovi().stream().filter(vlak -> vlak.dohvatiSveStanice().stream().anyMatch(stanica -> stanica.getNaziv().equalsIgnoreCase(polaznaStanica)) && vlak.dohvatiSveStanice().stream().anyMatch(stanica -> stanica.getNaziv().equalsIgnoreCase(odredisnaStanica))).collect(Collectors.toList());
 
         List<KomponentaVoznogReda> vlakoviPoDanima = vlakoviPoStanicama.stream().filter(vlak -> {
             Set<OznakeDana> vlakDani = vlak.dohvatiOznakuDana();
             return vlakDani != null && !Collections.disjoint(vlakDani, dan);
         }).collect(Collectors.toList());
-
-        System.out.println("Vlakovi nakon filtriranja prema danima:" + vlakoviPoDanima.size());
 
 
         List<KomponentaVoznogReda> filtriraniVlakovi = vlakoviPoDanima.stream().filter(vlak -> {
@@ -102,10 +103,8 @@ public class UKP2SHandler extends CommandHandler {
                 return false;
             }
 
-
             LocalTime vrijemePolaska = vlak.dohvatiVrijemePolaska();
             LocalTime vrijemeDolaska = vlak.izracunajDolazakZadnjeEtape();
-
 
             LocalTime vrijemePolaskaIzPolazneStanice = vlak.izracunajVrijemePolaska(polazna.getNaziv());
             LocalTime vrijemePolaskaIzOdredisneStanice = vlak.izracunajVrijemePolaska(odredisna.getNaziv());
@@ -129,8 +128,6 @@ public class UKP2SHandler extends CommandHandler {
 
             return vrijemePolaska != null && vrijemeDolaska != null;
         }).collect(Collectors.toList());
-
-        System.out.println("Vlakovi nakon filtriranja prema vremenu:" + filtriraniVlakovi.size());
 
         if(filtriraniVlakovi.isEmpty()) {
             System.out.println("Nema vlakova koji zadovoljavaju uvjete.");
@@ -171,17 +168,19 @@ public class UKP2SHandler extends CommandHandler {
 
              popusti = kontekst.vratiPopuste(datumPutovanja);
 
+            double tempPopust = PostavkeCijena.getInstance().dohvatiPrivremeniPopust(polaznaStanica, odredisnaStanica);
+            ukupnaCijena *= (1 - tempPopust / 100);
+
+            if(popusti > 0) {
+                popusti += tempPopust;
+            }
+
             KartaOriginator upravljanje = new KartaOriginator(vlak.dohvatiOznaku(), vlak.dohvatiVrstaVlaka(), nacinKupovine, udaljenost, datumPutovanja, vlak.izracunajVrijemePolaska(polaznaStanica), vlak.izracunajVrijemeDolaska(polaznaStanica, odredisnaStanica), osnovnaCijena, ukupnaCijena, popusti, LocalDateTime.now(), polaznaStanica+"-"+odredisnaStanica);
             KartaMemento karta = upravljanje.kreirajMemento();
 
             System.out.println(ispisKarti.formatirajPodatkeOKarti(karta));
         }
-
-
-
     }
-
-
     private Set<OznakeDana> prepoznajDan(LocalDate datum) {
         DayOfWeek dayOfWeek = datum.getDayOfWeek();
         Set<OznakeDana> danSet = EnumSet.noneOf(OznakeDana.class);

@@ -94,4 +94,5 @@ public enum OznakeDana {
                 .map(OznakeDana::getCode)
                 .collect(Collectors.joining());
     }
+
 }

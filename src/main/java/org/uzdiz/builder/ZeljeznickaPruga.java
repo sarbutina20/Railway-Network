@@ -4,10 +4,7 @@ import org.uzdiz.composite.VrstaVlaka;
 import org.uzdiz.state.RelacijaPruge;
 
 import javax.swing.text.html.Option;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class ZeljeznickaPruga {
     private String oznakaPruge;
@@ -133,35 +130,36 @@ public class ZeljeznickaPruga {
             Stanica odredisna = stations.get(i + 1);
 
             RelacijaPruge r1 = new RelacijaPruge(polazna, odredisna);
-            inicijalizirajStateRelacije(r1, polazna.getStatusPruge());
+            String prugaStatus = polazna.getStatusPruge();
+            String statusPolazneStanice = polazna.getStatusStanice();
+            String statusOdredisneStanice = odredisna.getStatusStanice();
+
+            String konacniStatus = odrediKombiniraniStatus(
+                    prugaStatus,
+                    statusPolazneStanice,
+                    statusOdredisneStanice
+            );
+
+            inicijalizirajStateRelacije(r1, konacniStatus);
             relacije.add(r1);
 
             if (brojKolosjeka > 1) {
                 RelacijaPruge r2 = new RelacijaPruge(odredisna, polazna);
-                inicijalizirajStateRelacije(r2, odredisna.getStatusPruge());
+                String prugaStatus2 = odredisna.getStatusPruge();
+                String statusPolazne2 = odredisna.getStatusStanice();
+                String statusOdredisne2 = polazna.getStatusStanice();
+
+                String konacniStatus2 = odrediKombiniraniStatus(
+                        prugaStatus2,
+                        statusPolazne2,
+                        statusOdredisne2
+                );
+
+                inicijalizirajStateRelacije(r2, konacniStatus2);
                 relacije.add(r2);
             }
         }
     }
-
-    /*public List<RelacijaPruge> dohvatiRelacijeIzmedu(Stanica s1, Stanica s2) {
-        List<RelacijaPruge> rezultat = new ArrayList<>();
-        boolean zapoceto = false;
-
-
-        for (RelacijaPruge rel : relacije) {
-            if (rel.getPolaznaStanica().equals(s1)) {
-                zapoceto = true;
-            }
-            if (zapoceto) {
-                rezultat.add(rel);
-            }
-            if (rel.getOdredisnaStanica().equals(s2)) {
-                break;
-            }
-        }
-        return rezultat;
-    }*/
 
     public List<RelacijaPruge> dohvatiRelacijeIzmedu(Stanica s1, Stanica s2) {
         List<RelacijaPruge> rezultat = new ArrayList<>();
@@ -205,6 +203,29 @@ public class ZeljeznickaPruga {
             case "Z" -> rel.postaviZatvorena();
             case "T" -> rel.postaviTestiranje();
             default  -> rel.postaviIspravnu();
+        }
+    }
+
+
+    private String odrediKombiniraniStatus(
+            String statusPruge,
+            String statusStaniceA,
+            String statusStaniceB
+    ) {
+        List<String> statusi = Arrays.asList(
+                statusPruge == null ? "" : statusPruge,
+                statusStaniceA == null ? "" : statusStaniceA,
+                statusStaniceB == null ? "" : statusStaniceB
+        );
+
+        if (statusi.contains("Z")) {
+            return "Z";
+        } else if (statusi.contains("T")) {
+            return "T";
+        } else if (statusi.contains("K")) {
+            return "K";
+        } else {
+            return "I";
         }
     }
 

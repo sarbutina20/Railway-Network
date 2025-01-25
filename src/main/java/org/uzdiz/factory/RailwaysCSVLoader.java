@@ -158,7 +158,7 @@ public class RailwaysCSVLoader extends CSVLoader<ZeljeznickaPruga> {
                 new Validator(0, "[A-Za-zčćžšđČĆŽŠĐ \\-]+", "Naziv stanice"),
                 new Validator(1, "[A-Z][0-9]{3}", "Oznaka pruge"),
                 new Validator(2, "kol\\.|staj\\.", "Vrsta stanice"),
-                new Validator(3, "[OA]", "Status stanice"),
+                new Validator(3, "[OZ]", "Status stanice"),
                 new Validator(4, "DA|NE", "Putnici ul/iz"),
                 new Validator(5, "DA|NE", "Roba ut/ist"),
                 new Validator(6, "[A-Z]", "Kategorija pruge"),
