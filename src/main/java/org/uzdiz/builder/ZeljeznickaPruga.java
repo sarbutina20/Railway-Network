@@ -92,37 +92,6 @@ public class ZeljeznickaPruga {
     }
 
 
-    private List<Integer> calculateCumulativeTimesForFilteredStations(List<Stanica> filteredStations, boolean forward, VrstaVlaka type) {
-        List<Integer> result = new ArrayList<>();
-        if (filteredStations.isEmpty()) {
-            return result;
-        }
-        if (forward) {
-            int cumulative = 0;
-            result.add(cumulative);
-            for (int i = 1; i < filteredStations.size(); i++) {
-                Stanica current = filteredStations.get(i);
-                Integer t = getTimeForType(current, type);
-                cumulative += (t != null ? t : 0);
-                result.add(cumulative);
-            }
-        } else {
-            int cumulative = 0;
-            List<Integer> reversed = new ArrayList<>();
-            reversed.add(cumulative);
-            for (int i = filteredStations.size() - 2; i >= 0; i--) {
-                Stanica next = filteredStations.get(i + 1);
-                Integer t = getTimeForType(next, type);
-                cumulative += (t != null ? t : 0);
-                reversed.add(cumulative);
-            }
-            Collections.reverse(reversed);
-            result = reversed;
-        }
-
-        return result;
-    }
-
     public void kreirajRelacije() {
         this.relacije = new ArrayList<>();
         for (int i = 0; i < stations.size() - 1; i++) {

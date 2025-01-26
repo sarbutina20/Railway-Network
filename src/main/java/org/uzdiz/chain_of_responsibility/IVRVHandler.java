@@ -37,6 +37,14 @@ public class IVRVHandler extends CommandHandler {
                 return;
             }
 
+            Stanica polazna = train.dohvatiEtape().getFirst().dohvatiPolaznuStanicu();
+            Stanica odredisna = train.dohvatiEtape().getLast().dohvatiOdredisnuStanicu();
+            boolean provjeraIspravnostiRute = train.provjeraIspravnostiRute(polazna, odredisna);
+            if(!provjeraIspravnostiRute) {
+                System.out.println("Relacije na pruzi po kojoj vozi vlak nisu ispravne pa nije moguće prikazati vozni red.");
+                return;
+            }
+
             handleIVRV(train);
 
         } else {
@@ -54,15 +62,16 @@ public class IVRVHandler extends CommandHandler {
 
         double totalDistance = 0;
         LocalTime departureTime;
-
+        ZeljeznickaPruga pruga;
         for (KomponentaVoznogReda stage : train.dohvatiEtape()) {
-            boolean firstStage = stage.equals(train.dohvatiEtape().getFirst());
             if (stage instanceof EtapaVlaka etapaVlaka) {
-                ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(etapaVlaka.dohvatiOznakuPruge());
+                 pruga = hrvatskeZeljeznice.getRailwayByOznaka(etapaVlaka.dohvatiOznakuPruge());
 
-                List<Stanica> fullRoute = pruga.getStations();
+                //List<Stanica> fullRoute = pruga.getStations();
+                List<Stanica> fullRoute = etapaVlaka.dohvatiSveStanice();
                 List<Stanica> routeForPrint = switch (etapaVlaka.dohvatiVrstaVlaka()) {
-                    case NORMALNI -> pruga.getStations();
+                    //case NORMALNI -> pruga.getStations();
+                    case NORMALNI -> etapaVlaka.dohvatiSveStanice();
                     case UBRZANI -> pruga.getUbrzaneStanice();
                     case BRZI -> pruga.getBrzeStanice();
                 };
@@ -78,7 +87,7 @@ public class IVRVHandler extends CommandHandler {
                     Stanica currentStation = filteredFull.get(i);
 
                     if (i > 0) {
-                        if (currentStation.getNaziv().equalsIgnoreCase(lastPrintedStation)) {
+                        if (currentStation.getNaziv().equalsIgnoreCase(lastPrintedStation) && currentStation.getNaziv().equalsIgnoreCase(filteredFull.get(i - 1).getNaziv())) {
                             continue;
                         }
                         if (etapaVlaka.dohvatiSmjer().equalsIgnoreCase("N")) {
@@ -136,8 +145,8 @@ public class IVRVHandler extends CommandHandler {
                     filteredStations.add(station);
                 }
 
-                if (station.equals(etapaVlaka.dohvatiOdredisnuStanicu())) {
-                    break;
+                if (station.getNaziv().equalsIgnoreCase(etapaVlaka.dohvatiOdredisnuStanicu().getNaziv())) {
+                    return filteredStations;
                 }
             }
         } else {
@@ -148,8 +157,8 @@ public class IVRVHandler extends CommandHandler {
                 if (withinRange) {
                     filteredStations.add(station);
                 }
-                if (station.equals(etapaVlaka.dohvatiOdredisnuStanicu())) {
-                    break;
+                if (station.getNaziv().equalsIgnoreCase(etapaVlaka.dohvatiOdredisnuStanicu().getNaziv())) {
+                    return filteredStations;
                 }
             }
         }

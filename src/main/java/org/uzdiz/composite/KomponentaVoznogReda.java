@@ -22,17 +22,21 @@ public interface KomponentaVoznogReda {
     String dohvatiNazivOdredisneStanice();
     String dohvatiLinijuCSV();
     Integer dohvatiBrojLinijeCSV();
-    public LocalTime izracunajDolazakZadnjeEtape();
-    public boolean validirajEtapeVlaka();
-    public double izracunajUkupnuUdaljenost(UpraviteljStanicama upraviteljStanicama);
+    LocalTime izracunajDolazakZadnjeEtape();
+    boolean validirajEtapeVlaka();
+    double izracunajUkupnuUdaljenost(UpraviteljStanicama upraviteljStanicama);
 
-    public double izracunajUdaljenostIzmeduStanica(String polazna, String odredisna);
-    public VrstaVlaka dohvatiVrstaVlaka();
+    double izracunajUdaljenostIzmeduStanica(String polazna, String odredisna);
+    VrstaVlaka dohvatiVrstaVlaka();
 
-    public Set<OznakeDana> dohvatiOznakuDana();
+    Set<OznakeDana> dohvatiOznakuDana();
 
     LocalTime izracunajVrijemePolaska(String polaznaStanica);
 
     LocalTime izracunajVrijemeDolaska(String polaznaStanica, String odredisnaStanica);
+
+    boolean provjeraValidnostiRelacija();
+
+    boolean provjeraIspravnostiRute(Stanica polaznaStanica, Stanica odredisnaStanica);
 }
 

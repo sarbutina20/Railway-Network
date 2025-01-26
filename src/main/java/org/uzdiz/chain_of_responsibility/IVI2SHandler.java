@@ -134,6 +134,12 @@ public class IVI2SHandler extends CommandHandler {
                         return false;
                     }
 
+                    boolean provjeraIspravnostiRute = vlak.provjeraIspravnostiRute(polazna, odredisna);
+                    if(!provjeraIspravnostiRute) {
+                        System.out.println("Relacije na pruzi po kojoj vozi vlak " + vlak.dohvatiOznaku() + " nisu ispravne pa nije moguće prikazati vozni red.");
+                        return false;
+                    }
+
                     return vrijemePolaska != null && vrijemeDolaska != null;
                 })
                 .collect(Collectors.toList());
@@ -152,6 +158,7 @@ public class IVI2SHandler extends CommandHandler {
 
 
     private void ispisiRutuVlaka(KomponentaVoznogReda train, String polazna, String odredisna, String prikaz) {
+
         System.out.println("===================================================================");
         System.out.printf("Vozni red za vlak: %s%n", train.dohvatiOznaku());
         System.out.println("-------------------------------------------------------------------");

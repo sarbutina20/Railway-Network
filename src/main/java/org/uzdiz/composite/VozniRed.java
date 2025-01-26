@@ -132,6 +132,16 @@ public class VozniRed implements KomponentaVoznogReda {
     }
 
     @Override
+    public boolean provjeraValidnostiRelacija() {
+        return false;
+    }
+
+    @Override
+    public boolean provjeraIspravnostiRute(Stanica polaznaStanica, Stanica odredisnaStanica) {
+        return false;
+    }
+
+    @Override
     public double izracunajUkupnuUdaljenost(UpraviteljStanicama upraviteljStanicama) {
         return 0;
     }

@@ -4,12 +4,12 @@ import org.uzdiz.builder.Stanica;
 import org.uzdiz.composite.KomponentaVoznogReda;
 import org.uzdiz.composite.OznakeDana;
 import org.uzdiz.composite.VrstaVlaka;
-import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.memento.IspisKarti;
 import org.uzdiz.memento.KartaMemento;
 import org.uzdiz.memento.KartaOriginator;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 import org.uzdiz.singleton.PostavkeCijena;
+
 import org.uzdiz.strategy.KontekstKupovine;
 import org.uzdiz.strategy.KupovinaAplikacija;
 import org.uzdiz.strategy.KupovinaBlagajna;
@@ -21,11 +21,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class KKPV2SHandler extends CommandHandler {
 
@@ -55,7 +51,7 @@ public class KKPV2SHandler extends CommandHandler {
                 System.out.println("Pogreška: Način kupovine mora biti jedan od: B (blagajna), WM (web/mobilna aplikacija), V (vlak).");
                 return;
             }
-            LocalDate datum = null;
+            LocalDate datum;
             try {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy.");
                 datum = LocalDate.parse(datumPutovanja, formatter);
@@ -80,24 +76,6 @@ public class KKPV2SHandler extends CommandHandler {
                 .filter(v -> v.dohvatiOznaku().equals(oznakaVlaka))
                 .findFirst()
                 .orElse(null);
-        if (vlak == null) {
-            System.out.println("Pogreška: Vlak s oznakom " + oznakaVlaka + " ne postoji.");
-            return;
-        }
-
-        Set<OznakeDana> dan = prepoznajDan(datumPutovanja);
-
-        Set<OznakeDana> vlakDani = vlak.dohvatiOznakuDana();
-        if (vlakDani == null || vlakDani.isEmpty() || Collections.disjoint(vlakDani, dan)) {
-            System.out.println("Pogreška: Vlak s oznakom " + vlak.dohvatiOznaku() + " ne vozi tim danom.");
-            return;
-        }
-
-
-        if (polaznaStanica.equalsIgnoreCase(odredisnaStanica)) {
-            System.out.println("Pogreška: Polazna i odredišna stanica ne mogu biti iste.");
-            return;
-        }
 
         List<Stanica> stanice = vlak.dohvatiSveStanice();
         Stanica polazna = stanice.stream()
@@ -108,16 +86,15 @@ public class KKPV2SHandler extends CommandHandler {
                 .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(odredisnaStanica))
                 .findFirst().orElse(null);
 
-        if (polazna == null || odredisna == null) {
-            System.out.println("Pogreška: Jedna ili obje stanice ne postoje u mreži.");
+        if(polazna == null || odredisna == null) {
+            System.out.println("Pogreška: Jedna ili obje stanice ne postoje u voznom redu vlaka.");
             return;
         }
 
-        LocalTime vrijemePolaskaIzPolazneStanice = vlak.izracunajVrijemePolaska(polazna.getNaziv());
-        LocalTime vrijemePolaskaIzOdredisneStanice = vlak.izracunajVrijemePolaska(odredisna.getNaziv());
+        boolean ispravnaKupovina = provjeraIspravnostiKupovine(vlak, oznakaVlaka, polazna, odredisna, datumPutovanja);
+        boolean provjeraIspravnostiRute = vlak.provjeraIspravnostiRute(polazna, odredisna);
 
-        if (vrijemePolaskaIzOdredisneStanice.isBefore(vrijemePolaskaIzPolazneStanice)) {
-            System.out.println("Pogreška: Vlak s tom oznakom ne putuje tim smjerom na taj datum.");
+        if (!ispravnaKupovina || !provjeraIspravnostiRute) {
             return;
         }
 
@@ -163,7 +140,43 @@ public class KKPV2SHandler extends CommandHandler {
     }
 
 
+    private boolean provjeraIspravnostiKupovine(KomponentaVoznogReda vlak, String oznakaVlaka, Stanica polaznaStanica, Stanica odredisnaStanica, LocalDate datumPutovanja) {
+        if (vlak == null) {
+            System.out.println("Pogreška: Vlak s oznakom " + oznakaVlaka + " ne postoji.");
+            return false;
+        }
 
+        Set<OznakeDana> dan = prepoznajDan(datumPutovanja);
+
+        Set<OznakeDana> vlakDani = vlak.dohvatiOznakuDana();
+        if (vlakDani == null || vlakDani.isEmpty() || Collections.disjoint(vlakDani, dan)) {
+            System.out.println("Pogreška: Vlak s oznakom " + vlak.dohvatiOznaku() + " ne vozi tim danom.");
+            return false;
+        }
+
+
+        if (polaznaStanica.getNaziv().equalsIgnoreCase(odredisnaStanica.getNaziv())) {
+            System.out.println("Pogreška: Polazna i odredišna stanica ne mogu biti iste.");
+            return false;
+        }
+
+
+
+        if (polaznaStanica == null || odredisnaStanica == null) {
+            System.out.println("Pogreška: Jedna ili obje stanice ne postoje u mreži.");
+            return false;
+        }
+
+        LocalTime vrijemePolaskaIzPolazneStanice = vlak.izracunajVrijemePolaska(polaznaStanica.getNaziv());
+        LocalTime vrijemePolaskaIzOdredisneStanice = vlak.izracunajVrijemePolaska(odredisnaStanica.getNaziv());
+
+        if (vrijemePolaskaIzOdredisneStanice.isBefore(vrijemePolaskaIzPolazneStanice)) {
+            System.out.println("Pogreška: Vlak s tom oznakom ne putuje tim smjerom na taj datum.");
+            return false;
+        }
+
+        return true;
+    }
     private Set<OznakeDana> prepoznajDan(LocalDate datum) {
         DayOfWeek dayOfWeek = datum.getDayOfWeek();
         Set<OznakeDana> danSet = EnumSet.noneOf(OznakeDana.class);
@@ -193,4 +206,7 @@ public class KKPV2SHandler extends CommandHandler {
         }
         return danSet;
     }
+
+
+
 }

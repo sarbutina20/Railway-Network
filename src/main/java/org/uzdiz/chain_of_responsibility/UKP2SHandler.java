@@ -152,6 +152,18 @@ public class UKP2SHandler extends CommandHandler {
                 .collect(Collectors.toList());
 
         for(KomponentaVoznogReda vlak : sortiraniVlakovi) {
+            List<Stanica> stanice = vlak.dohvatiSveStanice();
+            Stanica polazna = stanice.stream()
+                    .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(polaznaStanica))
+                    .findFirst().orElse(null);
+            Stanica odredisna = stanice.stream()
+                    .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(odredisnaStanica))
+                    .findFirst().orElse(null);
+            boolean provjeraIspravnostiRute = vlak.provjeraIspravnostiRute(polazna, odredisna);
+            if(!provjeraIspravnostiRute) {
+                continue;
+            }
+
             udaljenost = vlak.izracunajUdaljenostIzmeduStanica(polaznaStanica, odredisnaStanica);
 
             double cijenaPoKm = switch (vlak.dohvatiVrstaVlaka()) {

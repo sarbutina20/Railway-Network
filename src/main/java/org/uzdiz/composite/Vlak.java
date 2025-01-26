@@ -2,9 +2,9 @@ package org.uzdiz.composite;
 
 import org.uzdiz.builder.Stanica;
 import org.uzdiz.builder.ZeljeznickaPruga;
-import org.uzdiz.chain_of_responsibility.IVI2SHandler;
 import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
+import org.uzdiz.state.RelacijaPruge;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -75,7 +75,7 @@ public class Vlak implements KomponentaVoznogReda {
     public Set<OznakeDana> dohvatiOznakuDana() {
         return etape.stream()
                 .filter(stage -> stage instanceof EtapaVlaka)
-                .map(stage -> ((EtapaVlaka) stage).dohvatiOznakuDana())
+                .map(stage -> stage.dohvatiOznakuDana())
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }
@@ -168,7 +168,7 @@ public class Vlak implements KomponentaVoznogReda {
 
     @Override
     public LocalTime izracunajVrijemeDolaska(String polaznaStanica, String odredisnaStanica) {
-        for(KomponentaVoznogReda etapa : etape) {
+        for (KomponentaVoznogReda etapa : etape) {
             LocalTime departureTime = etapa.dohvatiVrijemePolaska();
             String lastPrintedStation = null;
             Integer travelTime;
@@ -195,7 +195,7 @@ public class Vlak implements KomponentaVoznogReda {
                     }
                 }
 
-                if(currentStation.getNaziv().equalsIgnoreCase(odredisnaStanica) && pruga.getTimeForType(currentStation, etapa.dohvatiVrstaVlaka()) != null) {
+                if (currentStation.getNaziv().equalsIgnoreCase(odredisnaStanica) && pruga.getTimeForType(currentStation, etapa.dohvatiVrstaVlaka()) != null) {
                     return departureTime;
                 }
 
@@ -206,12 +206,12 @@ public class Vlak implements KomponentaVoznogReda {
     }
 
     public double izracunajUdaljenostIzmeduStanica(String polazna, String odredisna) {
-        for(KomponentaVoznogReda etapa : etape) {
+        double udaljenost = 0;
+        boolean pocetak = false;
+        for (KomponentaVoznogReda etapa : etape) {
 
             String lastPrintedStation = null;
-            double udaljenost = 0;
-            ZeljeznickaPruga pruga = HrvatskeZeljeznice.getInstance().getRailwayByOznaka(etapa.dohvatiOznakuPruge());
-            boolean pocetak = false;
+
             List<Stanica> sveStanice = etapa.dohvatiSveStanice();
             for (int i = 0; i < sveStanice.size(); i++) {
                 Stanica currentStation = sveStanice.get(i);
@@ -227,18 +227,18 @@ public class Vlak implements KomponentaVoznogReda {
                     }
                 }
 
-                if(currentStation.getNaziv().equalsIgnoreCase(polazna)) {
+                if (currentStation.getNaziv().equalsIgnoreCase(polazna)) {
                     pocetak = true;
                 }
 
-                if(currentStation.getNaziv().equalsIgnoreCase(odredisna)) {
+                if (currentStation.getNaziv().equalsIgnoreCase(odredisna)) {
                     return udaljenost;
                 }
 
                 lastPrintedStation = currentStation.getNaziv();
             }
         }
-        return 0;
+        return udaljenost;
     }
 
     @Override
@@ -281,7 +281,6 @@ public class Vlak implements KomponentaVoznogReda {
     }
 
 
-
     public boolean validirajEtapeVlaka() {
         if (etape.isEmpty()) return false;
 
@@ -296,9 +295,6 @@ public class Vlak implements KomponentaVoznogReda {
             if (!currentStage.dohvatiVrstaVlaka().equals(vrstaVlakaType)) {
                 return false;
             }
-
-
-            // osnovna provjera prethodna etapa + trajanje voznje
             LocalTime previousArrivalTime = previousStage.dohvatiVrijemePolaska()
                     .plusHours(previousStage.getTrajanjeVoznje().getHour())
                     .plusMinutes(previousStage.getTrajanjeVoznje().getMinute());
@@ -306,14 +302,10 @@ public class Vlak implements KomponentaVoznogReda {
             if (previousArrivalTime.isAfter(currentStage.dohvatiVrijemePolaska())) {
                 return false;
             }
-
-
-            // koristenje moje custom metode za raspon pocetna stanica -> odredisna stanica
             LocalTime calculatedEndTime = izracunajVrijemeDolaska(previousStage.dohvatiPolaznuStanicu().getNaziv(), previousStage.dohvatiOdredisnuStanicu().getNaziv());
             if (calculatedEndTime.isAfter(currentStage.dohvatiVrijemePolaska())) {
                 return false;
             }
-
 
 
             LocalTime timetableEndTime = previousStage.dohvatiVrijemePolaska()
@@ -330,66 +322,49 @@ public class Vlak implements KomponentaVoznogReda {
         return true;
     }
 
-    private LocalTime calculateStageEndTime(EtapaVlaka stage) {
-        ZeljeznickaPruga railway = HrvatskeZeljeznice.getInstance().getRailwayByOznaka(stage.dohvatiOznakuPruge());
-        List<Stanica> stations = railway.getStations();
-
-        int startIndex = stations.indexOf(stage.dohvatiPolaznuStanicu());
-        if (startIndex == -1) startIndex = 0;
-        int endIndex = stations.indexOf(stage.dohvatiOdredisnuStanicu());
-        List<Integer> times = new ArrayList<>();
-
-        for (int i = startIndex; i <= endIndex; i++) {
-            Stanica current = stations.get(i);
-            switch (stage.dohvatiVrstaVlaka()) {
-                case NORMALNI -> times.add(current.getVrijemeNormalniVlak());
-                case UBRZANI -> {
-                    if (current.getVrijemeUbrzaniVlak() != null) {
-                        times.add(current.getVrijemeUbrzaniVlak());
-                    }
-                }
-                case BRZI -> {
-                    if (current.getVrijemeBrziVlak() != null) {
-                        times.add(current.getVrijemeBrziVlak());
-                    }
-
+    public boolean provjeraValidnostiRelacija() {
+        for (KomponentaVoznogReda stage : dohvatiEtape()) {
+            if (stage instanceof EtapaVlaka etapaVlaka) {
+                boolean validacija = etapaVlaka.provjeraValidnostiRelacija();
+                if (!validacija) {
+                    return false;
                 }
             }
         }
-
-        int totalTravelTime = times.stream().mapToInt(Integer::intValue).sum();
-        return stage.dohvatiVrijemePolaska().plusMinutes(totalTravelTime);
+        return true;
     }
 
+    public boolean provjeraIspravnostiRute(Stanica polaznaStanica, Stanica odredisnaStanica) {
 
-    public LocalTime calculateTrainTravelTime() {
-        if (etape.isEmpty()) return null;
-
-        List<Integer> times = new ArrayList<>();
-
-        for (KomponentaVoznogReda stage : etape) {
-            List<Stanica> stations = stage.dohvatiSveStanice();
-            for (int i = 0; i < stations.size(); i++) {
-                Stanica current = stations.get(i);
-                switch (stage.dohvatiVrstaVlaka()) {
-                    case NORMALNI -> times.add(current.getVrijemeNormalniVlak());
-                    case UBRZANI -> {
-                        if (current.getVrijemeUbrzaniVlak() != null) {
-                            times.add(current.getVrijemeUbrzaniVlak());
-                        }
-                    }
-                    case BRZI -> {
-                        if (current.getVrijemeBrziVlak() != null) {
-                            times.add(current.getVrijemeBrziVlak());
-                        }
-
-                    }
-                }
-            }
+        if (polaznaStanica == null || odredisnaStanica == null) {
+            System.out.println("Pogreška: Jedna ili obje stanice ne postoje u mreži.");
+            return false;
         }
 
-        int totalTravelTime = times.stream().mapToInt(Integer::intValue).sum();
-        return dohvatiVrijemePolaska().plusMinutes(totalTravelTime);
+        if (polaznaStanica.getOznakaPruge().equals(odredisnaStanica.getOznakaPruge())) {
+            HrvatskeZeljeznice hrvatskeZeljeznice = HrvatskeZeljeznice.getInstance();
+            ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(polaznaStanica.getOznakaPruge());
+            List<RelacijaPruge> relacije = pruga.dohvatiRelacijeIzmedu(polaznaStanica, odredisnaStanica);
+
+            if (relacije.isEmpty()) {
+                System.out.println("Pogreška: Nema definiranih relacija između " +
+                        polaznaStanica.getNaziv() + " i " + odredisnaStanica.getNaziv());
+                return false;
+            }
+
+            for (RelacijaPruge relacija : relacije) {
+                if (!relacija.getStatusRelacije().equals("I")) {
+                    System.out.println("Nije moguće kupiti kartu jer relacija između " +
+                            polaznaStanica.getNaziv() + " i " + odredisnaStanica.getNaziv() +
+                            " nije ispravna. Status: " + relacija.getStatusRelacije());
+                    return false;
+                }
+            }
+        } else {
+            return provjeraValidnostiRelacija();
+        }
+
+        return true;
     }
 
 

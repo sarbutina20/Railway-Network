@@ -4,6 +4,9 @@ import org.uzdiz.builder.Stanica;
 import org.uzdiz.builder.ZeljeznickaPruga;
 import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
+import org.uzdiz.state.RelacijaPruge;
+import org.uzdiz.singleton.HrvatskeZeljeznice;
+
 
 import java.time.LocalTime;
 import java.util.*;
@@ -69,11 +72,9 @@ public class EtapaVlaka implements KomponentaVoznogReda {
 
     @Override
     public List<Stanica> dohvatiSveStanice() {
-        List<Stanica> sveStanicePruge = HrvatskeZeljeznice.getInstance().getPruge().stream()
-                .filter(railway -> railway.getOznakaPruge().equals(oznakaPruge))
-                .findFirst()
-                .map(ZeljeznickaPruga::getStations)
-                .orElse(new ArrayList<>());
+        HrvatskeZeljeznice hrvatskeZeljeznice = HrvatskeZeljeznice.getInstance();
+        ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(polaznaStanica.getOznakaPruge());
+        List<Stanica> sveStanicePruge = pruga.getStations();
 
         List<Stanica> staniceEtape = new ArrayList<>();
 
@@ -88,8 +89,8 @@ public class EtapaVlaka implements KomponentaVoznogReda {
                 if (start) {
                     staniceEtape.add(stanica);
                 }
-                if (stanica.equals(odredisnaStanica)) {
-                    break;
+                if (stanica.getNaziv().equalsIgnoreCase(odredisnaStanica.getNaziv())) {
+                    return staniceEtape;
                 }
             }
         } else if(isReverse) {
@@ -103,7 +104,7 @@ public class EtapaVlaka implements KomponentaVoznogReda {
                     staniceEtape.add(stanica);
                 }
                 if (stanica.getNaziv().equals(odredisnaStanica.getNaziv())) {
-                    break;
+                    return staniceEtape;
                 }
             }
         }
@@ -226,4 +227,91 @@ public class EtapaVlaka implements KomponentaVoznogReda {
     public List<KomponentaVoznogReda> dohvatiEtape() {
         return null;
     }
+
+    public boolean provjeraValidnostiRelacija() {
+        ZeljeznickaPruga pruga = HrvatskeZeljeznice.getInstance().getPruge().stream()
+                .filter(railway -> railway.getOznakaPruge().equals(oznakaPruge))
+                .findFirst()
+                .orElse(null);
+        List<Stanica> sveStanicaPruge = pruga.getStations();
+
+        List<Stanica> filtered = filtrirajStanicePoRasponu(sveStanicaPruge);
+
+        List<RelacijaPruge> relacije = pruga.dohvatiRelacijeIzmedu(filtered.getFirst(), filtered.getLast());
+        for (RelacijaPruge relacija : relacije) {
+            if (!relacija.getStatusRelacije().equals("I")) {
+                System.out.println("Nije moguće kupiti kartu jer relacija između " +
+                        relacija.getPolaznaStanica().getNaziv() + " i " + relacija.getOdredisnaStanica().getNaziv() +
+                        " nije ispravna. Status: " + relacija.getStatusRelacije());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean provjeraIspravnostiRute(Stanica polaznaStanica, Stanica odredisnaStanica) {
+
+        if(polaznaStanica == null || odredisnaStanica == null) {
+            System.out.println("Pogreška: Jedna ili obje stanice ne postoje u mreži.");
+            return false;
+        }
+
+        HrvatskeZeljeznice hrvatskeZeljeznice = HrvatskeZeljeznice.getInstance();
+        ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(polaznaStanica.getOznakaPruge());
+        List<RelacijaPruge> relacije = pruga.dohvatiRelacijeIzmedu(polaznaStanica, odredisnaStanica);
+
+        if (relacije.isEmpty()) {
+            System.out.println("Pogreška: Nema definiranih relacija između " +
+                    polaznaStanica.getNaziv() + " i " + odredisnaStanica.getNaziv());
+            return false;
+        }
+
+        for (RelacijaPruge relacija : relacije) {
+            if (!relacija.getStatusRelacije().equals("I")) {
+                System.out.println("Nije moguće kupiti kartu jer relacija između " +
+                        polaznaStanica.getNaziv() + " i " + odredisnaStanica.getNaziv() +
+                        " nije ispravna. Status: " + relacija.getStatusRelacije());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public List<Stanica> filtrirajStanicePoRasponu(List<Stanica> sveStanicePruge) {
+        boolean withinRange = false;
+        List<Stanica> filteredStations = new ArrayList<>();
+        if (smjer.equalsIgnoreCase("O")) {
+            for (int i = sveStanicePruge.size() - 1; i >= 0; i--) {
+                Stanica station = sveStanicePruge.get(i);
+
+                if (station.getNaziv().equalsIgnoreCase(polaznaStanica.getNaziv())) {
+                    withinRange = true;
+                }
+
+                if (withinRange) {
+                    filteredStations.add(station);
+                }
+
+                if (station.equals(odredisnaStanica)) {
+                    break;
+                }
+            }
+        } else {
+            for (Stanica station : sveStanicePruge) {
+                if (station.getNaziv().equalsIgnoreCase(polaznaStanica.getNaziv())) {
+                    withinRange = true;
+                }
+                if (withinRange) {
+                    filteredStations.add(station);
+                }
+                if (station.equals(odredisnaStanica)) {
+                    break;
+                }
+            }
+        }
+        return filteredStations;
+    }
+
+
 }
