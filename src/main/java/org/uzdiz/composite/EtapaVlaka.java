@@ -73,7 +73,7 @@ public class EtapaVlaka implements KomponentaVoznogReda {
     @Override
     public List<Stanica> dohvatiSveStanice() {
         HrvatskeZeljeznice hrvatskeZeljeznice = HrvatskeZeljeznice.getInstance();
-        ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(polaznaStanica.getOznakaPruge());
+        ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(this.oznakaPruge);
         List<Stanica> sveStanicePruge = pruga.getStations();
 
         List<Stanica> staniceEtape = new ArrayList<>();
@@ -83,13 +83,13 @@ public class EtapaVlaka implements KomponentaVoznogReda {
         if(isNormal) {
             boolean start = false;
             for (Stanica stanica : sveStanicePruge) {
-                if (stanica.equals(polaznaStanica)) {
+                if (stanica.equals(this.polaznaStanica)) {
                     start = true;
                 }
                 if (start) {
                     staniceEtape.add(stanica);
                 }
-                if (stanica.getNaziv().equalsIgnoreCase(odredisnaStanica.getNaziv())) {
+                if (stanica.getNaziv().equalsIgnoreCase(this.odredisnaStanica.getNaziv())) {
                     return staniceEtape;
                 }
             }
@@ -97,13 +97,13 @@ public class EtapaVlaka implements KomponentaVoznogReda {
             boolean start = false;
             for (int i = sveStanicePruge.size() - 1; i >= 0; i--) {
                 Stanica stanica = sveStanicePruge.get(i);
-                if (stanica.equals(polaznaStanica)) {
+                if (stanica.equals(this.polaznaStanica)) {
                     start = true;
                 }
                 if (start) {
                     staniceEtape.add(stanica);
                 }
-                if (stanica.getNaziv().equals(odredisnaStanica.getNaziv())) {
+                if (stanica.getNaziv().equals(this.odredisnaStanica.getNaziv())) {
                     return staniceEtape;
                 }
             }

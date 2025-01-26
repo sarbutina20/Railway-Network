@@ -6,7 +6,7 @@ public class IspravnaState implements State {
 
     @Override
     public void postaviIspravnu(RelacijaPruge relacija) {
-        System.out.println("Relacija " + relacija.getPolaznaStanica().getNaziv() + " - " + relacija.getOdredisnaStanica().getNaziv() + " je već ispravna.");
+        //System.out.println("Relacija " + relacija.getPolaznaStanica().getNaziv() + " - " + relacija.getOdredisnaStanica().getNaziv() + " je već ispravna.");
     }
 
     @Override

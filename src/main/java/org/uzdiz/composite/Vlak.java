@@ -46,8 +46,8 @@ public class Vlak implements KomponentaVoznogReda {
 
     @Override
     public List<Stanica> dohvatiSveStanice() {
-        return etape.stream()
-                .flatMap(stage -> stage.dohvatiSveStanice().stream())
+        return this.etape.stream()
+                .flatMap(etapa -> etapa.dohvatiSveStanice().stream())
                 .collect(Collectors.toList());
     }
 

@@ -203,6 +203,9 @@ public class IVI2SHandler extends CommandHandler {
                     departureTime = etapa.dohvatiVrijemePolaska();
                     oznakaPruge = etapa.dohvatiOznakuPruge();
                 }
+                if (trenutnaStanica.getNaziv().equalsIgnoreCase(zadnjaStanica.getNaziv()) && trenutnaStanica.getNaziv().equalsIgnoreCase(staniceZaIzracun.get(i - 1).stanica.getNaziv())) {
+                    continue;
+                }
 
                 if (etapa.dohvatiSmjer().equalsIgnoreCase("N")) {
                     totalDistance += trenutnaStanica.getDuzina();
@@ -272,23 +275,6 @@ public class IVI2SHandler extends CommandHandler {
         System.out.println("===================================================================");
     }
 
-    private int findEtapaIndex(List<KomponentaVoznogReda> etape, String stationName) {
-        for (int i = 0; i < etape.size(); i++) {
-            KomponentaVoznogReda stage = etape.get(i);
-            if (stage instanceof EtapaVlaka etapaVlaka) {
-                List<Stanica> staniceEtape = etapaVlaka.dohvatiSveStanice();
-                boolean sadrziStanicu = staniceEtape.stream()
-                        .anyMatch(s -> s.getNaziv().equalsIgnoreCase(stationName));
-                if (sadrziStanicu) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-
-
     private List<Stanica> filterStationByRange(List<Stanica> stationsAlongPath, EtapaVlaka etapaVlaka) {
         boolean withinRange = false;
         List<Stanica> filteredStations = new ArrayList<>();
@@ -357,6 +343,7 @@ public class IVI2SHandler extends CommandHandler {
         for (KomponentaVoznogReda stage : train.dohvatiEtape()) {
             if (stage instanceof EtapaVlaka etapaVlaka) {
                 ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(etapaVlaka.dohvatiOznakuPruge());
+                //List<Stanica> sveStaniceEtape = pruga.getStations();
                 List<Stanica> sveStaniceEtape = etapaVlaka.dohvatiSveStanice();
                 for (Stanica stanica : sveStaniceEtape) {
                     rezultat.add(new StanicaInfo(stanica, pruga, etapaVlaka));

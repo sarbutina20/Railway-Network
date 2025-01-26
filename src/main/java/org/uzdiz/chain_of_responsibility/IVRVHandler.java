@@ -123,6 +123,9 @@ public class IVRVHandler extends CommandHandler {
                         );
                         lastPrintedStation = currentStation.getNaziv();
                     }
+                    if(train.dohvatiNazivOdredisneStanice().equalsIgnoreCase(currentStation.getNaziv())) {
+                        return;
+                    }
                 }
             }
         }

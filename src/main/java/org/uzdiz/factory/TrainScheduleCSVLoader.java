@@ -109,11 +109,11 @@ public class TrainScheduleCSVLoader extends CSVLoader<Vlak> {
 
         Stanica start = polaznaStanica.trim().isEmpty()
                 ? dajDefaultPolaziste(oznakaPruge, smjer)
-                : traziStanicuPoNazivu(polaznaStanica);
+                : traziStanicuPoNazivu(polaznaStanica, oznakaPruge);
 
         Stanica end = odredisnaStanica.trim().isEmpty()
                 ? dajDefaultOdrediste(oznakaPruge, smjer)
-                : traziZadnjuStanicuPoNazivu(odredisnaStanica);
+                : traziZadnjuStanicuPoNazivu(odredisnaStanica, oznakaPruge);
 
 
         if (start == null || end == null) {
@@ -129,20 +129,34 @@ public class TrainScheduleCSVLoader extends CSVLoader<Vlak> {
                 oznakaVlaka, validOznakaDana, line, lineNumber);
     }
 
-    private Stanica traziStanicuPoNazivu(String stationName) {
+    private Stanica traziStanicuPoNazivu(String stationName, String oznakaPruge) {
         return HrvatskeZeljeznice.getInstance().getPruge().stream()
+                .filter(railway -> railway.getOznakaPruge().equals(oznakaPruge))
                 .flatMap(railway -> railway.getStations().stream())
                 .filter(station -> station.getNaziv().equals(stationName))
                 .findFirst()
                 .orElse(null);
+
+        /*return HrvatskeZeljeznice.getInstance().getPruge().stream()
+                .flatMap(railway -> railway.getStations().stream())
+                .filter(station -> station.getNaziv().equals(stationName))
+                .findFirst()
+                .orElse(null);*/
     }
 
-    private Stanica traziZadnjuStanicuPoNazivu(String stationName) {
+    private Stanica traziZadnjuStanicuPoNazivu(String stationName, String oznakaPruge) {
         return HrvatskeZeljeznice.getInstance().getPruge().stream()
+                .filter(railway -> railway.getOznakaPruge().equals(oznakaPruge))
                 .flatMap(railway -> railway.getStations().stream())
                 .filter(station -> station.getNaziv().equals(stationName))
                 .reduce((first, second) -> second)
                 .orElse(null);
+
+        /*return HrvatskeZeljeznice.getInstance().getPruge().stream()
+                .flatMap(railway -> railway.getStations().stream())
+                .filter(station -> station.getNaziv().equals(stationName))
+                .reduce((first, second) -> second)
+                .orElse(null);*/
     }
 
     private Stanica dajDefaultPolaziste(String railwayCode, String direction) {
