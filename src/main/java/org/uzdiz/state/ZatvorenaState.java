@@ -20,7 +20,7 @@ public class ZatvorenaState implements State {
 
     @Override
     public void postaviTestiranje(RelacijaPruge relacija) {
-        System.out.println("Uspješno postavio da je relacija " + relacija.getPolaznaStanica() + " - " + relacija.getOdredisnaStanica() + " zatvorena.");
+        System.out.println("Uspješno postavio da je relacija " + relacija.getPolaznaStanica().getNaziv() + " - " + relacija.getOdredisnaStanica().getNaziv() + " zatvorena.");
         relacija.setTrenutnoStanje(relacija.getTestiranjeState());
     }
 

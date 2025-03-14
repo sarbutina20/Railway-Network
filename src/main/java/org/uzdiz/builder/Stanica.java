@@ -1,37 +1,31 @@
 package org.uzdiz.builder;
 
 public class Stanica {
-    private String naziv;
-    private String oznakaPruge;
-    private String vrstaStanice;
-    private String statusStanice;
-    private boolean putniciUlIz;
-    private boolean robaUtIst;
-    private String kategorijaPruge;
-    private int brojPerona;
-    private String vrstaPruge;
-    private int brojKolosjeka;
-    private double doPoOsovini;
-    private double doPoDuznomM;
-    private String statusPruge;
-    private int duzina;
-    private Integer vrijemeNormalniVlak;
-    private Integer vrijemeUbrzaniVlak;
-    private Integer vrijemeBrziVlak;
+    private final String naziv;
+    private final String oznakaPruge;
+    private final String vrstaStanice;
+    private final String statusStanice;
+    private final String vrstaPruge;
+    private final int brojKolosjeka;
+    private final String statusPruge;
+    private final int duzina;
+    private final Integer vrijemeNormalniVlak;
+    private final Integer vrijemeUbrzaniVlak;
+    private final Integer vrijemeBrziVlak;
 
     private Stanica(Builder builder) {
         this.naziv = builder.naziv;
         this.oznakaPruge = builder.oznakaPruge;
         this.vrstaStanice = builder.vrstaStanice;
         this.statusStanice = builder.statusStanice;
-        this.putniciUlIz = builder.putniciUlIz;
-        this.robaUtIst = builder.robaUtIst;
-        this.kategorijaPruge = builder.kategorijaPruge;
-        this.brojPerona = builder.brojPerona;
+        boolean putniciUlIz = builder.putniciUlIz;
+        boolean robaUtIst = builder.robaUtIst;
+        String kategorijaPruge = builder.kategorijaPruge;
+        int brojPerona = builder.brojPerona;
         this.vrstaPruge = builder.vrstaPruge;
         this.brojKolosjeka = builder.brojKolosjeka;
-        this.doPoOsovini = builder.doPoOsovini;
-        this.doPoDuznomM = builder.doPoDuznomM;
+        double doPoOsovini = builder.doPoOsovini;
+        double doPoDuznomM = builder.doPoDuznomM;
         this.statusPruge = builder.statusPruge;
         this.duzina = builder.duzina;
         this.vrijemeNormalniVlak = builder.vrijemeNormalniVlak;
@@ -71,36 +65,8 @@ public class Stanica {
         return statusStanice;
     }
 
-    public boolean isPutniciUlIz() {
-        return putniciUlIz;
-    }
-
-    public boolean isRobaUtIst() {
-        return robaUtIst;
-    }
-
-    public String getKategorijaPruge() {
-        return kategorijaPruge;
-    }
-
-    public int getBrojPerona() {
-        return brojPerona;
-    }
-
-    public String getVrstaPruge() {
-        return vrstaPruge;
-    }
-
     public int getBrojKolosjeka() {
         return brojKolosjeka;
-    }
-
-    public double getDoPoOsovini() {
-        return doPoOsovini;
-    }
-
-    public double getDoPoDuznomM() {
-        return doPoDuznomM;
     }
 
     public String getStatusPruge() {

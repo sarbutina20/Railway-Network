@@ -49,9 +49,6 @@ public class KontrolaPrometa implements Mediator {
             Map<Stanica, LocalTime> otherArrivals = hrvatskeZeljeznice.getStationManager().calculateStationArrivals(otherTrain, null);
             if (otherArrivals == null) continue;
 
-            //Set<Stanica> commonStations = new HashSet<>(mainArrivals.keySet());
-            //commonStations.retainAll(otherArrivals.keySet());
-
             Set<Stanica> commonStations = new HashSet<>();
             for (Stanica mainStation : mainArrivals.keySet()) {
                 for (Stanica otherStation : otherArrivals.keySet()) {

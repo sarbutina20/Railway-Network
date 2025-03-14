@@ -77,6 +77,11 @@ public class KKPV2SHandler extends CommandHandler {
                 .findFirst()
                 .orElse(null);
 
+        if(vlak == null) {
+            System.out.println("Pogreška: Vlak s oznakom " + oznakaVlaka + " ne postoji.");
+            return;
+        }
+
         List<Stanica> stanice = vlak.dohvatiSveStanice();
         Stanica polazna = stanice.stream()
                 .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(polaznaStanica))

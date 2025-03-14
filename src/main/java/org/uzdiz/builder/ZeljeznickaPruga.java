@@ -2,8 +2,6 @@ package org.uzdiz.builder;
 
 import org.uzdiz.composite.VrstaVlaka;
 import org.uzdiz.state.RelacijaPruge;
-
-import javax.swing.text.html.Option;
 import java.util.*;
 
 public class ZeljeznickaPruga {

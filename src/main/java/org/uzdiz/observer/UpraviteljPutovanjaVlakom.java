@@ -2,7 +2,6 @@ package org.uzdiz.observer;
 
 import org.uzdiz.builder.Stanica;
 import org.uzdiz.composite.KomponentaVoznogReda;
-import org.uzdiz.composite.EtapaVlaka;
 import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 
@@ -91,6 +90,12 @@ public class UpraviteljPutovanjaVlakom implements SubjektPutovanjaVlakom {
 
         if (train == null) {
             System.out.println("Pogreška: Vlak s oznakom " + idVlaka + " ne postoji.");
+            return;
+        }
+
+        boolean provjeraIspravnostiRute = train.provjeraIspravnostiRute(train.dohvatiPolaznuStanicu(), train.dohvatiOdredisnuStanicu());
+
+        if (!provjeraIspravnostiRute) {
             return;
         }
 

@@ -5,9 +5,6 @@ import org.uzdiz.builder.ZeljeznickaPruga;
 import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 import org.uzdiz.state.RelacijaPruge;
-import org.uzdiz.singleton.HrvatskeZeljeznice;
-
-
 import java.time.LocalTime;
 import java.util.*;
 
@@ -240,7 +237,7 @@ public class EtapaVlaka implements KomponentaVoznogReda {
         List<RelacijaPruge> relacije = pruga.dohvatiRelacijeIzmedu(filtered.getFirst(), filtered.getLast());
         for (RelacijaPruge relacija : relacije) {
             if (!relacija.getStatusRelacije().equals("I")) {
-                System.out.println("Nije moguće kupiti kartu jer relacija između " +
+                System.out.println("Relacija između " +
                         relacija.getPolaznaStanica().getNaziv() + " i " + relacija.getOdredisnaStanica().getNaziv() +
                         " nije ispravna. Status: " + relacija.getStatusRelacije());
                 return false;

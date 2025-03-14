@@ -3,7 +3,6 @@ package org.uzdiz.managers;
 import org.uzdiz.builder.Stanica;
 import org.uzdiz.builder.ZeljeznickaPruga;
 import org.uzdiz.composite.KomponentaVoznogReda;
-import org.uzdiz.composite.EtapaVlaka;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 
 import java.time.LocalTime;

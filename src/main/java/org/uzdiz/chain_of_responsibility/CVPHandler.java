@@ -43,6 +43,11 @@ public class CVPHandler extends CommandHandler {
                     return;
                 }
 
+                if(popustSuN > 100 || popustWebMob > 100) {
+                    System.out.println("Pogreška: Popusti ne smiju biti veći od 100%.");
+                    return;
+                }
+
                 PostavkeCijena postavke = PostavkeCijena.getInstance();
 
                 postavke.postaviCijene(cijenaNormalni, cijenaUbrzani, cijenaBrzi);

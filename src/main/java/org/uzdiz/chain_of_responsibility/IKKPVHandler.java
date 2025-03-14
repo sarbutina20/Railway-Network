@@ -3,7 +3,6 @@ package org.uzdiz.chain_of_responsibility;
 import org.uzdiz.memento.IspisKarti;
 import org.uzdiz.memento.KartaMemento;
 import org.uzdiz.memento.PovijestKarata;
-import org.uzdiz.observer.Korisnik;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 
 import java.util.List;

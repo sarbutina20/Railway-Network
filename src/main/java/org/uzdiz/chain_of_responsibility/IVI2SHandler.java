@@ -180,6 +180,8 @@ public class IVI2SHandler extends CommandHandler {
         List<StanicaInfo> staniceZaIzracun = spojiSveStaniceZaIzracun(train);
         List<StanicaInfo> staniceZaIspis  = spojiSveStaniceZaIspis(train);
 
+
+
         boolean uRasponu = false;
         double totalDistance = 0;
         LocalTime departureTime = null;
@@ -343,7 +345,6 @@ public class IVI2SHandler extends CommandHandler {
         for (KomponentaVoznogReda stage : train.dohvatiEtape()) {
             if (stage instanceof EtapaVlaka etapaVlaka) {
                 ZeljeznickaPruga pruga = hrvatskeZeljeznice.getRailwayByOznaka(etapaVlaka.dohvatiOznakuPruge());
-                //List<Stanica> sveStaniceEtape = pruga.getStations();
                 List<Stanica> sveStaniceEtape = etapaVlaka.dohvatiSveStanice();
                 for (Stanica stanica : sveStaniceEtape) {
                     rezultat.add(new StanicaInfo(stanica, pruga, etapaVlaka));

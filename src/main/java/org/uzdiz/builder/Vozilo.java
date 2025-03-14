@@ -1,24 +1,24 @@
 package org.uzdiz.builder;
 
 public class Vozilo {
-    private String oznaka;
-    private String opis;
-    private String proizvodjac;
-    private int godina;
-    private String namjena;
-    private String vrstaPrijevoza;
-    private String vrstaPogona;
-    private double maksBrzina;
-    private double maksSnaga;
-    private int brojSjedecihMjesta;
-    private int brojStajecihMjesta;
-    private int brojBicikala;
-    private int brojKreveta;
-    private int brojAutomobila;
-    private double nosivost;
-    private double povrsina;
-    private double zapremina;
-    private String status;
+    private final String oznaka;
+    private final String opis;
+    private final String proizvodjac;
+    private final int godina;
+    private final String namjena;
+    private final String vrstaPrijevoza;
+    private final String vrstaPogona;
+    private final double maksBrzina;
+    private final double maksSnaga;
+    private final int brojSjedecihMjesta;
+    private final int brojStajecihMjesta;
+    private final int brojBicikala;
+    private final int brojKreveta;
+    private final int brojAutomobila;
+    private final double nosivost;
+    private final double povrsina;
+    private final double zapremina;
+    private final String status;
 
     private Vozilo(Builder builder) {
         this.oznaka = builder.oznaka;

@@ -4,10 +4,8 @@ import org.uzdiz.builder.Stanica;
 import org.uzdiz.composite.KomponentaVoznogReda;
 import org.uzdiz.composite.OznakeDana;
 import org.uzdiz.composite.VrstaVlaka;
-import org.uzdiz.managers.UpraviteljStanicama;
 import org.uzdiz.memento.IspisKarti;
 import org.uzdiz.memento.KartaMemento;
-import org.uzdiz.memento.PovijestKarata;
 import org.uzdiz.memento.KartaOriginator;
 import org.uzdiz.singleton.HrvatskeZeljeznice;
 import org.uzdiz.singleton.PostavkeCijena;
@@ -15,7 +13,6 @@ import org.uzdiz.strategy.KontekstKupovine;
 import org.uzdiz.strategy.KupovinaAplikacija;
 import org.uzdiz.strategy.KupovinaBlagajna;
 import org.uzdiz.strategy.KupovinaVlak;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -58,9 +55,9 @@ public class UKP2SHandler extends CommandHandler {
                 System.out.println("Pogreška: Način kupovine mora biti jedan od: B (blagajna), WM (web/mobilna aplikacija), V (vlak).");
                 return;
             }
-            LocalDate datum = null;
-            LocalTime odVrijeme = null;
-            LocalTime doVrijeme = null;
+            LocalDate datum;
+            LocalTime odVrijeme;
+            LocalTime doVrijeme;
             try {
                 odVrijeme = LocalTime.parse(odVr, TIME_FORMATTER);
                 doVrijeme = LocalTime.parse(doVr, TIME_FORMATTER);
@@ -82,7 +79,7 @@ public class UKP2SHandler extends CommandHandler {
 
     private void handleUKP2S(String polaznaStanica, String odredisnaStanica, LocalDate datumPutovanja, LocalTime odVrijeme, LocalTime doVrijeme, String nacinKupovine, Set<OznakeDana> dan) {
 
-        if(polaznaStanica.equalsIgnoreCase(odredisnaStanica)) {
+        if (polaznaStanica.equalsIgnoreCase(odredisnaStanica)) {
             System.out.println("Polazna i odredišna stanica ne mogu biti iste.");
             return;
         }
@@ -110,7 +107,7 @@ public class UKP2SHandler extends CommandHandler {
             LocalTime vrijemePolaskaIzOdredisneStanice = vlak.izracunajVrijemePolaska(odredisna.getNaziv());
 
 
-            if(vrijemePolaskaIzOdredisneStanice.isBefore(vrijemePolaskaIzPolazneStanice)) {
+            if (vrijemePolaskaIzOdredisneStanice.isBefore(vrijemePolaskaIzPolazneStanice)) {
                 return false;
             }
 
@@ -129,7 +126,7 @@ public class UKP2SHandler extends CommandHandler {
             return vrijemePolaska != null && vrijemeDolaska != null;
         }).collect(Collectors.toList());
 
-        if(filtriraniVlakovi.isEmpty()) {
+        if (filtriraniVlakovi.isEmpty()) {
             System.out.println("Nema vlakova koji zadovoljavaju uvjete.");
             return;
         }
@@ -151,7 +148,7 @@ public class UKP2SHandler extends CommandHandler {
                 .sorted(Comparator.comparing(vlak -> vlak.dohvatiVrijemePolaska()))
                 .collect(Collectors.toList());
 
-        for(KomponentaVoznogReda vlak : sortiraniVlakovi) {
+        for (KomponentaVoznogReda vlak : sortiraniVlakovi) {
             List<Stanica> stanice = vlak.dohvatiSveStanice();
             Stanica polazna = stanice.stream()
                     .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(polaznaStanica))
@@ -160,7 +157,7 @@ public class UKP2SHandler extends CommandHandler {
                     .filter(stanica -> stanica.getNaziv().equalsIgnoreCase(odredisnaStanica))
                     .findFirst().orElse(null);
             boolean provjeraIspravnostiRute = vlak.provjeraIspravnostiRute(polazna, odredisna);
-            if(!provjeraIspravnostiRute) {
+            if (!provjeraIspravnostiRute) {
                 continue;
             }
 
@@ -178,21 +175,22 @@ public class UKP2SHandler extends CommandHandler {
                     nacinKupovine.equals("WM") ? postavke.dohvatiPopustWebMob() :
                             nacinKupovine.equals("V") ? postavke.dohvatiUvecanjeVlak() : 0);
 
-             popusti = kontekst.vratiPopuste(datumPutovanja);
+            popusti = kontekst.vratiPopuste(datumPutovanja);
 
             double tempPopust = PostavkeCijena.getInstance().dohvatiPrivremeniPopust(polaznaStanica, odredisnaStanica);
             ukupnaCijena *= (1 - tempPopust / 100);
 
-            if(popusti > 0) {
+            if (popusti > 0) {
                 popusti += tempPopust;
             }
 
-            KartaOriginator upravljanje = new KartaOriginator(vlak.dohvatiOznaku(), vlak.dohvatiVrstaVlaka(), nacinKupovine, udaljenost, datumPutovanja, vlak.izracunajVrijemePolaska(polaznaStanica), vlak.izracunajVrijemeDolaska(polaznaStanica, odredisnaStanica), osnovnaCijena, ukupnaCijena, popusti, LocalDateTime.now(), polaznaStanica+"-"+odredisnaStanica);
+            KartaOriginator upravljanje = new KartaOriginator(vlak.dohvatiOznaku(), vlak.dohvatiVrstaVlaka(), nacinKupovine, udaljenost, datumPutovanja, vlak.izracunajVrijemePolaska(polaznaStanica), vlak.izracunajVrijemeDolaska(polaznaStanica, odredisnaStanica), osnovnaCijena, ukupnaCijena, popusti, LocalDateTime.now(), polaznaStanica + "-" + odredisnaStanica);
             KartaMemento karta = upravljanje.kreirajMemento();
 
             System.out.println(ispisKarti.formatirajPodatkeOKarti(karta));
         }
     }
+
     private Set<OznakeDana> prepoznajDan(LocalDate datum) {
         DayOfWeek dayOfWeek = datum.getDayOfWeek();
         Set<OznakeDana> danSet = EnumSet.noneOf(OznakeDana.class);

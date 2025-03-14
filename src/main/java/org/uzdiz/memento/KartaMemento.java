@@ -5,8 +5,6 @@ import org.uzdiz.composite.VrstaVlaka;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-
 public class KartaMemento {
     private final String oznakaVlaka;
     private final VrstaVlaka vrstaVlaka;

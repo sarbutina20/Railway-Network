@@ -26,49 +26,6 @@ public class KartaOriginator {
 
     private String relacija;
 
-    public String getOznakaVlaka() {
-        return oznakaVlaka;
-    }
-
-    public VrstaVlaka getVrstaVlaka() {
-        return vrstaVlaka;
-    }
-
-    public String getNacinKupovine() {
-        return nacinKupovine;
-    }
-
-    public double getUdaljenost() {
-        return udaljenost;
-    }
-
-    public LocalDate getDatumPutovanja() {
-        return datumPutovanja;
-    }
-
-    public LocalTime getVrijemePolaska() {
-        return vrijemePolaska;
-    }
-
-    public LocalTime getVrijemeDolaska() {
-        return vrijemeDolaska;
-    }
-
-    public LocalDateTime getTrenutnoVrijeme() {
-        return trenutnoVrijeme;
-    }
-
-    public double getIzvornaCijena() {
-        return izvornaCijena;
-    }
-
-    public double getKonacnaCijena() {
-        return konacnaCijena;
-    }
-
-    public double getPopusti() {
-        return popusti;
-    }
 
     public String getRelacija() {
         return relacija;
